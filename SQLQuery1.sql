@@ -1,0 +1,167 @@
+CREATE DATABASE ClinicaMedica;
+
+USE ClinicaMedica;
+
+CREATE TABLE Pacientes (
+	idPaciente INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	Nome VARCHAR(50) NOT NULL,
+	Sobrenome VARCHAR(50) NOT NULL,
+	CPF NUMERIC NOT NULL UNIQUE,
+	DataNascimento DATE NOT NULL,
+	idEndereco INTEGER 
+);
+
+CREATE TABLE PacientesParticulares (
+	id INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	ValorConsulta DECIMAL(8,2) NOT NULL,
+	idPaciente INTEGER NOT NULL UNIQUE
+);
+
+CREATE TABLE PacientesConveniados (
+	id INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	NumCarteirinha NUMERIC NOT NULL UNIQUE,
+	ValidadeConvenio DATE NOT NULL,
+	idPaciente INTEGER NOT NULL,
+	idConvenio INTEGER NOT NULL,
+	idTipoPlano INTEGER NOT NULL
+);
+
+CREATE TABLE Convenios (
+	idConvenio INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	Nome VARCHAR(20) NOT NULL,
+	Site VARCHAR(20),
+	CNPJ NUMERIC NOT NULL UNIQUE
+);
+
+CREATE TABLE Medicos (
+	idMedico INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	Nome VARCHAR(50) NOT NULL,
+	Sobrenome VARCHAR(50) NOT NULL,
+	CRM VARCHAR(9) NOT NULL UNIQUE,
+	DataContratacao DATE NOT NULL
+);
+
+CREATE TABLE TelefonesPacientes (
+	idMedico INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	CodPais NUMERIC NOT NULL,
+	CodArea NUMERIC NOT NULL,
+	Numero NUMERIC NOT NULL,
+	idPaciente INTEGER NOT NULL
+);
+
+CREATE TABLE TelefonesMedicos (
+	id INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	CodPais NUMERIC NOT NULL,
+	CodArea NUMERIC NOT NULL,
+	Numero NUMERIC NOT NULL,
+	idMedico INTEGER NOT NULL
+);
+
+CREATE TABLE TelefonesConvenios (
+	id INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	CodPais NUMERIC NOT NULL,
+	CodArea NUMERIC NOT NULL,
+	Numero NUMERIC NOT NULL,
+	idConvenio INTEGER NOT NULL
+);
+
+CREATE TABLE TiposPlanos (
+	id INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	TipoPlano VARCHAR(20) NOT NULL UNIQUE
+);
+
+CREATE TABLE Enderecos (
+	id INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	Logradouro NVARCHAR(20) NOT NULL,
+	Numero NUMERIC,
+	Complemento VARCHAR(10),
+	Bairro NVARCHAR(50) NOT NULL,
+	Cidade VARCHAR(20) NOT NULL,
+	Estado VARCHAR (20) NOT NULL,
+	Pais VARCHAR(20) NOT NULL,
+	CEP NUMERIC NOT NULL
+);
+
+CREATE TABLE Consultas (
+	idConsulta INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	DataHora DATETIME NOT NULL,
+	TipoConsulta INTEGER NOT NULL,
+	Observacoes VARCHAR(255),
+	Diagnostico VARCHAR(255) NOT NULL,
+	idPaciente INTEGER NOT NULL,
+	idMedico INTEGER NOT NULL,
+	idStatusConsulta INTEGER NOT NULL
+);
+
+CREATE TABLE TiposConsultas (
+	id INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	TipoConsulta VARCHAR(20) NOT NULL UNIQUE,
+	ValorConsulta DECIMAL NOT NULL
+);
+
+CREATE TABLE StatusConsultas (
+	id INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	StatusConsulta VARCHAR(10) NOT NULL UNIQUE
+);
+
+CREATE TABLE Emails (
+	id INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	Email VARCHAR(20) NOT NULL UNIQUE,
+	idPaciente INTEGER NOT NULL
+);
+
+CREATE TABLE EspecialidadesMedicas (
+	idEspecialidade INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	Nome VARCHAR(20) NOT NULL UNIQUE,
+	Descricao NVARCHAR(255) 
+);
+
+CREATE TABLE MedicosEspecialidades (
+	id INTEGER NOT NULL PRIMARY KEY IDENTITY (1,1),
+	idMedico INTEGER NOT NULL,
+	idEspecialidade INTEGER NOT NULL
+);
+
+
+
+ALTER TABLE PacientesParticulares
+ADD FOREIGN KEY (idPaciente) REFERENCES Pacientes(idPaciente);
+
+
+ALTER TABLE PacientesConveniados
+ADD FOREIGN KEY(idPaciente) REFERENCES Pacientes(idPaciente);
+
+
+ALTER TABLE Pacientes
+ADD FOREIGN KEY (idEndereco) REFERENCES Enderecos(id);
+
+ALTER TABLE Emails
+ADD FOREIGN KEY (idPaciente) REFERENCES Pacientes(idPaciente);
+
+ALTER TABLE TelefonesPacientes
+ADD FOREIGN KEY (idPaciente) REFERENCES Pacientes(idPaciente);
+
+ALTER TABLE PacientesConveniados
+ADD FOREIGN KEY (idConvenio) REFERENCES Convenios(idConvenio),
+FOREIGN KEY (idTipoPlano) REFERENCES TiposPlanos(id);
+
+ALTER TABLE TelefonesConvenios
+ADD FOREIGN KEY (idConvenio) REFERENCES Convenios(idConvenio);
+
+ALTER TABLE TelefonesMedicos
+ADD FOREIGN KEY (idMedico) REFERENCES Medicos(idMedico);
+
+ALTER TABLE MedicosEspecialidades
+ADD FOREIGN KEY (idMedico) REFERENCES Medicos(idMedico),
+FOREIGN KEY (idEspecialidade) REFERENCES EspecialidadesMedicas(idEspecialidade);
+
+ALTER TABLE Consultas
+ADD FOREIGN KEY (idPaciente) REFERENCES Pacientes(idPaciente),
+FOREIGN KEY (idMedico) REFERENCES Medicos(idMedico),
+FOREIGN KEY (idStatusConsulta) REFERENCES StatusConsultas(id),
+FOREIGN KEY (TipoConsulta) REFERENCES TiposConsultas(id);
+
+
+
+--USE master;
+--DROP DATABASE ClinicaMedica;
